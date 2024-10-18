@@ -1,11 +1,11 @@
 import {
   Component,
   ContentChild,
-  EventEmitter, HostBinding,
+  EventEmitter, HostBinding, Inject,
   Input,
   OnChanges,
   OnInit,
-  Output,
+  Output, PLATFORM_ID,
   TemplateRef,
   ViewChild,
   ViewEncapsulation
@@ -13,6 +13,7 @@ import {
 import {MatMenu, MenuPositionX, MenuPositionY} from '@angular/material/menu';
 import {BdcWalkService} from '../bdc-walk.service';
 import {BdcWalkTriggerDirective} from './tutorial-trigger.directive';
+import {isPlatformServer} from "@angular/common";
 
 @Component({
   selector: 'bdc-walk-popup',
@@ -50,9 +51,13 @@ export class BdcWalkPopupComponent implements OnInit, OnChanges {
   trigger: BdcWalkTriggerDirective;
   data: any;
 
-  constructor(private tutorialService: BdcWalkService) { }
+  constructor(private tutorialService: BdcWalkService,
+              @Inject(PLATFORM_ID) private platformID: Object) { }
 
   ngOnInit() {
+    if (isPlatformServer(this.platformID)) {
+      return;
+    }
   }
 
   ngOnChanges() {

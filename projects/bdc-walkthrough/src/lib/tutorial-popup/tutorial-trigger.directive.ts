@@ -20,9 +20,9 @@ import {
   InjectionToken,
   Input,
   NgZone, OnChanges,
-  OnDestroy,
+  OnDestroy, OnInit,
   Optional,
-  Output,
+  Output, PLATFORM_ID,
   Self,
   ViewContainerRef,
 } from '@angular/core';
@@ -31,11 +31,12 @@ import {delay, filter, take, takeUntil} from 'rxjs/operators';
 import {MatMenu, MAT_MENU_SCROLL_STRATEGY, MatMenuPanel, MenuPositionX, MenuPositionY} from '@angular/material/menu';
 import {BdcWalkPopupComponent} from './tutorial-popup.component';
 import {BdcDisplayEventAction, BdcWalkService} from '../bdc-walk.service';
+import {isPlatformServer} from "@angular/common";
 
 @Directive({
   selector: '[bdcWalkTriggerFor]'
 })
-export class BdcWalkTriggerDirective implements OnDestroy, OnChanges, AfterContentInit, AfterContentChecked {
+export class BdcWalkTriggerDirective implements OnInit, OnDestroy, OnChanges, AfterContentInit, AfterContentChecked {
   private _portal: TemplatePortal;
   private _overlayRef: OverlayRef | null = null;
   private _menuOpen = false;
@@ -84,11 +85,18 @@ export class BdcWalkTriggerDirective implements OnDestroy, OnChanges, AfterConte
     private _overlay: Overlay,
     private _element: ElementRef<HTMLElement>,
     private _viewContainerRef: ViewContainerRef,
+    @Inject(PLATFORM_ID) private platformID: Object,
     @Inject(MAT_MENU_SCROLL_STRATEGY) scrollStrategy: any,
     @Optional() private _dir: Directionality,
     private _ngZone?: NgZone,
   ) {
     this._scrollStrategy = scrollStrategy;
+  }
+
+  ngOnInit() {
+    if (isPlatformServer(this.platformID)) {
+      return;
+    }
   }
 
   ngAfterContentInit() {

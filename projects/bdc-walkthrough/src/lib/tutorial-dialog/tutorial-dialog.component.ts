@@ -1,17 +1,18 @@
 import {
   AfterContentInit,
   Component,
-  EventEmitter,
+  EventEmitter, Inject,
   Input,
   OnChanges,
-  OnDestroy,
-  Output,
+  OnDestroy, OnInit,
+  Output, PLATFORM_ID,
   TemplateRef,
   ViewChild, ViewEncapsulation
 } from '@angular/core';
 import {MatDialog, MatDialogRef} from '@angular/material/dialog';
 import {Subscription} from 'rxjs';
 import {BdcDisplayEventAction, BdcWalkService} from '../bdc-walk.service';
+import {isPlatformServer} from "@angular/common";
 
 @Component({
   selector: 'bdc-walk-dialog',
@@ -19,7 +20,7 @@ import {BdcDisplayEventAction, BdcWalkService} from '../bdc-walk.service';
   styleUrls: ['./tutorial-dialog.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class BdcWalkDialogComponent implements AfterContentInit, OnDestroy, OnChanges {
+export class BdcWalkDialogComponent implements OnInit, AfterContentInit, OnDestroy, OnChanges {
   @Input() name: string;
   @Input() mustCompleted: { [taskName: string]: any | boolean } = {};
   @Input() mustNotDisplaying: string[] = [];
@@ -32,7 +33,15 @@ export class BdcWalkDialogComponent implements AfterContentInit, OnDestroy, OnCh
   componentSubscription: Subscription;
 
   constructor(private dialog: MatDialog,
-              private tutorialService: BdcWalkService) { }
+              private tutorialService: BdcWalkService,
+              @Inject(PLATFORM_ID) private platformID: Object
+              ) { }
+
+  ngOnInit() {
+    if (isPlatformServer(this.platformID)) {
+      return;
+    }
+  }
 
   ngAfterContentInit() {
     this.componentSubscription = this.tutorialService.changes.subscribe(() => this._sync());
